@@ -1,0 +1,13 @@
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+# PyTorch with CUDA 11.8
+torch==2.2.2
+torchvision==0.17.2
+pillow
+numpy
+requests
+pyyaml
+opencv-python
+streamlit
+pytesseract
+langdetect

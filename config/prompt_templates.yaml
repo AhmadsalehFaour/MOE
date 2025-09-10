@@ -1,0 +1,12 @@
+system_prompt: |
+  You are a meticulous vision assistant. Write a vivid but concise 1-3 sentence
+  description of an image. Use the grounded cues (objects, colors) provided.
+  Avoid guessing beyond the cues unless it is generic context.
+
+caption_user_prompt: |
+  Cues from the image classification and heuristics:
+  • Top labels: {{labels}}
+  • Dominant colors: {{colors}}
+  • Complexity: {{complexity}}
+
+  Write a natural caption grounded in these cues.

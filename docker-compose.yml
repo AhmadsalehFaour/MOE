@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11435:11434"
+    environment:
+      # اجعل الحاوية تبقي النماذج محمّلة فترة أطول (اختياري)
+      - OLLAMA_KEEP_ALIVE=24h
+      # ====== (اختياري) تفعيل GPU لنماذج Ollama ======
+      # فعّل هذا القسم إذا ثبّت NVIDIA Container Toolkit وتريد استخدام GPU:
+      # - NVIDIA_VISIBLE_DEVICES=all
+      # - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    # gpus: all  # ← فعّلها إن كان Docker/Compose لديك يدعم الحقل مباشرة
+    volumes:
+      - ollama:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:11434/api/tags"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      # مرّر خيارات البناء إلى Dockerfile المحسّن:
+      args:
+        # لغات تيسراكت المنصّبة داخل الصورة (أضف ما يلزمك)
+        TESS_LANG_PACKS: "tesseract-ocr-eng tesseract-ocr-ara"
+        # ثبّت Torch/vision إذا كنت تستخدم ResNet-50 داخل الحاوية
+        INSTALL_TORCH: "true"
+        # fastText اختياري:
+        INSTALL_FASTTEXT: "false"      # غيّرها إلى "true" لتثبيت fastText
+        DOWNLOAD_LID176: "false"       # غيّرها إلى "true" لتنزيل نموذج LID-176 (~1GB) داخل الصورة
+    container_name: moe-ollama-app
+    depends_on:
+      ollama:
+        condition: service_healthy
+    ports:
+      - "8501:8501"
+    environment:
+      # اجعل التطبيق يتصل بـ Ollama عبر اسم الخدمة:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3
+    # (اختياري) ملفات/نماذج إضافية:
+    volumes:
+      # اشبك كودك للتطوير الحي (اختياري؛ احذفه في الإنتاج)
+      - .:/app
+      # لو تستخدم fastText وأردت وضع نموذج LID-176 خارج الصورة:
+      - models:/app/models
+    command: ["streamlit", "run", "app.py", "--server.address=0.0.0.0", "--server.port=8501", "--browser.gatherUsageStats=false"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8501/_stcore/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  ollama:
+  models:

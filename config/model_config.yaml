@@ -1,0 +1,15 @@
+# Model and inference configuration
+ollama:
+  base_url: "http://127.0.0.1:11434"
+  model: "llama3"
+  temperature: 0.7
+  top_p: 0.9
+  max_tokens: 200
+
+vision:
+  backbone: "resnet50"
+  topk: 5
+
+gate:
+  p_threshold: 0.55
+  entropy_hi: 3.5
