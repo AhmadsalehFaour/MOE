@@ -93,11 +93,5 @@ Upload an image → system classifies objects/colors → gate decides:
 
 ---
 
-## 📸 Screenshots
-
-_Add screenshots of the Streamlit UI here._
-
----
-
 ## 📜 License
 Licensed under the **MIT License**. See `LICENSE` for details.
